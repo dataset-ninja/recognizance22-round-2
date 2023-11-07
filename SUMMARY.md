@@ -1,4 +1,4 @@
-**Recognizance'22 Round 2** is a dataset for instance segmentation, semantic segmentation, object detection, and classification tasks. It is used in the biological research. 
+**Recognizance'22 Round 2** is a dataset for instance segmentation, semantic segmentation, and object detection tasks. It is used in the biological research. 
 
 The dataset consists of 1200 images with 6107 labeled objects belonging to 1 single class (*cell*).
 
