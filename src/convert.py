@@ -1,5 +1,6 @@
 import supervisely as sly
-import os
+import os, cv2
+import numpy as np
 from dataset_tools.convert import unpack_if_archive
 import src.settings as s
 from urllib.parse import unquote, urlparse
@@ -83,12 +84,16 @@ def convert_and_upload_supervisely_project(
         labels = []
 
         mask_path = os.path.join(masks_path, get_file_name_with_ext(image_path))
-
-        mask_np = sly.imaging.image.read(mask_path)[:, :, 0]
-        img_height = mask_np.shape[0]
-        img_wight = mask_np.shape[1]
-        mask = mask_np == 255
-        ret, curr_mask = connectedComponents(mask.astype("uint8"), connectivity=8)
+        img = cv2.imread(mask_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img = cv2.Canny(img, 100, 100)
+        res = cv2.findContours(img.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        contours = res[-2] # for cv2 v3 and v4+ compatibility
+        cv2.drawContours(img, contours, -1, color=(255, 255, 255), thickness=cv2.FILLED)
+        img_height = img.shape[0]
+        img_wight = img.shape[1]
+        mask = img == 255
+        ret, curr_mask = cv2.connectedComponents(mask.astype("uint8"), connectivity=8)
         for i in range(1, ret):
             obj_mask = curr_mask == i
             curr_bitmap = sly.Bitmap(obj_mask)
